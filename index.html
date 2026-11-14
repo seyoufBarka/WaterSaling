@@ -253,11 +253,11 @@ button{font-family:inherit;cursor:pointer;}
 @media (max-width:768px){
   .dashboard{padding:18px 12px;}
   .dashboard-title h2{font-size:1.2rem;}
-  .icon-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:100%;}
-  .icon-card{padding:18px 10px;}
-  .icon-card .icon-wrap{width:52px;height:52px;}
-  .icon-card .icon-wrap svg{width:26px;height:26px;}
-  .icon-card p{font-size:.85rem;}
+  .icon-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:100%;}
+  .icon-card{padding:22px 12px;}
+  .icon-card .icon-wrap{width:56px;height:56px;}
+  .icon-card .icon-wrap svg{width:28px;height:28px;}
+  .icon-card p{font-size:.9rem;}
   .view-container{padding:12px;}
   .view-header{padding:12px 14px;}
   .view-header h2{font-size:1.05rem;}
@@ -271,11 +271,11 @@ button{font-family:inherit;cursor:pointer;}
   .login-card h1{font-size:1.15rem;}
 }
 @media (max-width:420px){
-  .icon-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
-  .icon-card{padding:14px 6px;gap:8px;}
-  .icon-card .icon-wrap{width:44px;height:44px;border-radius:14px;}
-  .icon-card .icon-wrap svg{width:22px;height:22px;}
-  .icon-card p{font-size:.7rem;}
+  .icon-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+  .icon-card{padding:18px 10px;gap:10px;}
+  .icon-card .icon-wrap{width:50px;height:50px;border-radius:14px;}
+  .icon-card .icon-wrap svg{width:24px;height:24px;}
+  .icon-card p{font-size:.8rem;}
   .btn span.btn-label{display:none;}
 }
 
@@ -385,14 +385,7 @@ background-position:12px 55%,17px 55%;background-size:5px 5px;background-repeat:
   .form-grid.cust-2col select{padding:8px 8px;font-size:.82rem;}
 }
 /* توسيط أيقونة الشركة عند وجودها وحدها في صف */
-.icon-grid > .icon-card[data-view="company"]{
-  grid-column: 2 / 3;
-}
-@media (max-width:420px){
-  .icon-grid > .icon-card[data-view="company"]{
-    grid-column: 2 / 3;
-  }
-}
+
 .company-grid{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -503,7 +496,7 @@ background-position:12px 55%,17px 55%;background-size:5px 5px;background-repeat:
 /* ===== أشرطة البحث والفلاتر: صف واحد يتقلص مع الشاشة ===== */
 #purSearch, #purFilterUser, #purFilterKind,
 #spSearch, #spFilterUser, #spFilterKind,
-#invSearch, #invFilterUser, #invFilterKind{
+#invSearch,#invShipSearch, #invFilterUser, #invFilterKind{
   min-width:0;
   width:100%;
   max-width:100%;
@@ -535,7 +528,7 @@ background-position:12px 55%,17px 55%;background-size:5px 5px;background-repeat:
   }
   #purSearch, #purFilterUser, #purFilterKind,
   #spSearch, #spFilterUser, #spFilterKind,
-  #invSearch, #invFilterUser, #invFilterKind{
+  #invSearch,#invShipSearch, #invFilterUser, #invFilterKind{
     padding:8px 6px;
     font-size:.74rem;
     text-overflow:ellipsis;
@@ -544,17 +537,25 @@ background-position:12px 55%,17px 55%;background-size:5px 5px;background-repeat:
 @media (max-width:420px){
   #purSearch, #purFilterUser, #purFilterKind,
   #spSearch, #spFilterUser, #spFilterKind,
-  #invSearch, #invFilterUser, #invFilterKind{
+  #invSearch,#invShipSearch, #invFilterUser, #invFilterKind{
     padding:7px 4px;
     font-size:.68rem;
   }
 }
 
-.form-grid:has(#purFilterUser),
-.form-grid:has(#spFilterUser),
-.form-grid:has(#invFilterUser){
+.form-grid:has(#purFilterUser){
   grid-auto-flow:row;
-  grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) !important;
+  grid-template-columns:minmax(0,1.4fr) minmax(0,.9fr) minmax(0,1fr) !important;
+}
+.form-grid:has(#purSearch):not(:has(#purFilterUser)){
+  grid-template-columns:minmax(0,1.4fr) minmax(0,.9fr) !important;
+}
+#purDate{min-width:0;width:100%;max-width:100%;}
+@media (max-width:600px){
+  #purDate{padding:8px 2px;font-size:.68rem;}
+}
+@media (max-width:420px){
+  #purDate{padding:7px 1px;font-size:.62rem;}
 }
 @media print{
   #printableSale .table-card,
@@ -624,6 +625,59 @@ html[dir=ltr] .login-field input{padding:14px 14px 14px 46px;}
 html[dir=ltr] .lang-login{left:auto;right:14px;}
 html[dir=ltr] .inv-meta{text-align:right;}
 html[dir=ltr] .icon-card::before{transform-origin:left;}
+/* ===== إصلاح القائمة المنسدلة للمندوب في شحنة جديدة ===== */
+#spDetail .form-grid{
+  max-width:100%;
+  overflow:hidden;
+}
+#spDetail select,
+#spDetail input{
+  min-width:0;
+  width:100%;
+  max-width:100%;
+  text-overflow:ellipsis;
+}
+#spDetail .detail-card{
+  overflow:hidden;
+}
+/* على الشاشات الصغيرة: منع تجاوز الحاوية */
+@media (max-width:600px){
+  #spDetail .form-grid{
+    grid-template-columns:minmax(0,1fr) !important;
+    gap:8px;
+  }
+  #spDetail select,
+  #spDetail input{
+    padding:8px 6px;
+    font-size:.8rem;
+  }
+}
+@media (max-width:420px){
+  #spDetail select,
+  #spDetail input{
+    padding:7px 4px;
+    font-size:.74rem;
+  }
+}
+.form-grid:has(#invFilterUser){
+  grid-auto-flow:row;
+  grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr) minmax(0,1fr) !important;
+}
+.form-grid:has(#spFilterUser){
+  grid-auto-flow:row;
+  grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr) minmax(0,1fr) !important;
+}
+.form-grid:has(#spSearch):not(:has(#spFilterUser)){
+  grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr) !important;
+}
+#spFilterState{min-width:0;width:100%;max-width:100%;}
+@media (max-width:600px){
+  #spFilterState{padding:8px 6px;font-size:.74rem;}
+}
+@media (max-width:420px){
+  #spFilterState{padding:7px 4px;font-size:.68rem;}
+}
+
 
 
 /* ===== زر تثبيت التطبيق (أسفل النافذة) ===== */
@@ -1570,12 +1624,17 @@ App.views.products = ProductsView;
 
 
 
+
 /* =========================================================
    PurchasesView
    ========================================================= */
-/* =========================================================
-   PurchasesView
-   ========================================================= */
+const parseRepFilter = v=>{
+  v = String(v||'');
+  if(v.startsWith('kind:')) return {kind:v.slice(5), user:''};
+  if(v.startsWith('user:')) return {kind:'', user:v.slice(5)};
+  return {kind:'', user:''};
+};
+
 const PurchasesView = {
   allRows: [],          // كل الصفوف المجلوبة من الخادم
   kindByUserCache: null,
@@ -1601,20 +1660,18 @@ const PurchasesView = {
 
     c.innerHTML = `
       ${headerTpl('المشتريات',ICONS.purchases)}
-      <div class="form-grid" style="margin-bottom:5px;grid-template-columns:${isRep?'1fr':'2fr 1fr 1fr'};">
-        <input id="purSearch" placeholder="بحث برقم الشراء أو الشركة أو المنتج..." oninput="PurchasesView.applyFilters()">
-        ${isRep?'':`
-          <select id="purFilterUser" onchange="PurchasesView.applyFilters()">
-            <option value="">كل المندوبين</option>
-            ${reps.map(u=>`<option value="${esc(u.name)}">${esc(u.name)} — ${repTypeLabel(u.repType)}</option>`).join('')}
-          </select>
-          <select id="purFilterKind" onchange="PurchasesView.applyFilters()">
-            <option value="">كل الأنواع</option>
-            <option value="مندوب محل">مندوب محل</option>
-            <option value="مندوب شاحنة">مندوب شاحنة</option>
-          </select>
-        `}
-      </div>
+<div class="form-grid" style="margin-bottom:5px;grid-template-columns:${isRep?'1fr 1fr':'1.4fr .9fr 1fr'};">
+  <input id="purSearch" placeholder="بحث برقم الشراء أو الشركة أو المنتج..." oninput="PurchasesView.applyFilters()">
+  <input id="purDate" type="date" title="تاريخ الشراء" onchange="PurchasesView.applyFilters()">
+  ${isRep?'':`
+    <select id="purFilterUser" onchange="PurchasesView.applyFilters()">
+      <option value="">الكل</option>
+      <option value="kind:مندوب محل">مندوب محل</option>
+      <option value="kind:مندوب شاحنة">مندوب شاحنة</option>
+      ${reps.map(u=>`<option value="user:${esc(u.name)}">${esc(u.name)}</option>`).join('')}
+    </select>
+  `}
+</div>
       <div class="table-card"><div class="table-wrapper">
         <table class="data-table" style="margin-top:5px;">
           <thead><tr><th>رقم الشراء</th><th>تاريخ الشراء</th><th>اسم الشركة</th><th>اسم المستخدم</th><th>اسم المنتج</th><th>الكمية المضافة</th><th>سعر الوحدة</th><th>إجمالي السعر</th></tr></thead>
@@ -1648,8 +1705,9 @@ const PurchasesView = {
   /* تطبيق البحث النصي + الفلاتر محلياً (بدون أي طلب للخادم) */
   async applyFilters(){
     const q = (document.getElementById('purSearch')?.value||'').trim().toLowerCase();
-    const filterUser = (document.getElementById('purFilterUser')?.value||'').trim();
-    const filterKind = (document.getElementById('purFilterKind')?.value||'').trim();
+   const rf = parseRepFilter(document.getElementById('purFilterUser')?.value);
+    const filterUser = rf.user, filterKind = rf.kind;
+    const dateQ = (document.getElementById('purDate')?.value||'').trim();
 
     let list = this.allRows.slice();
 
@@ -1663,7 +1721,9 @@ const PurchasesView = {
         String(x.date||'').toLowerCase().includes(q)
       );
     }
-
+if(dateQ){
+  list = list.filter(x => String(x.date||'').slice(0,10) === dateQ);
+}
     // فلتر المندوب
     if(filterUser){
       list = list.filter(x => String(x.userName||'') === filterUser);
@@ -1730,20 +1790,24 @@ async render(c){
 
   c.innerHTML=`
     ${headerTpl('نقاط البيع',ICONS.salepoints,cm?`<button class="btn btn-primary" onclick="SalePointsView.createNew()">${ICONS.plus}<span class="btn-label">إضافة جديد</span></button>`:'')}
-    <div class="form-grid" id="spBar" style="margin-bottom:5px;grid-template-columns:${isRep?'1fr':'2fr 1fr 1fr'};">
-      <input id="spSearch" placeholder="رقم الشحنة أو المندوب..." oninput="SalePointsView.applyFilters()">
-      ${isRep?'':`
-        <select id="spFilterUser" onchange="SalePointsView.applyFilters()">
-          <option value="">كل المندوبين</option>
-          ${reps.map(u=>`<option value="${esc(u.name)}">${esc(u.name)} — ${repTypeLabel(u.repType)}</option>`).join('')}
-        </select>
-        <select id="spFilterKind" onchange="SalePointsView.applyFilters()">
-          <option value="">كل الأنواع</option>
-          <option value="مندوب محل">مندوب محل</option>
-          <option value="مندوب شاحنة">مندوب شاحنة</option>
-        </select>
-      `}
-    </div>
+<div class="form-grid" id="spBar" style="margin-bottom:5px;grid-template-columns:${isRep?'1fr 1fr':'1.4fr 1fr 1fr'};">
+  <input id="spSearch" placeholder="رقم الشحنة أو المندوب..." oninput="SalePointsView.applyFilters()">
+  <select id="spFilterState" onchange="SalePointsView.applyFilters()">
+    <option value="">الكل</option>
+    <option value="استلام">استلام</option>
+    <option value="مستلم">مستلم</option>
+    <option value="مرجع">مرجع</option>
+    <option value="نفاد">نفاد</option>
+  </select>
+  ${isRep?'':`
+    <select id="spFilterUser" onchange="SalePointsView.applyFilters()">
+      <option value="">الكل</option>
+      <option value="kind:مندوب محل">مندوب محل</option>
+      <option value="kind:مندوب شاحنة">مندوب شاحنة</option>
+      ${reps.map(u=>`<option value="user:${esc(u.name)}">${esc(u.name)}</option>`).join('')}
+    </select>
+  `}
+</div>
     <div class="table-card" id="spTable"><div class="table-wrapper">
       <table class="data-table">
         <thead><tr><th>رقم الشحنة</th><th>التاريخ</th><th>اسم المندوب</th><th> إجمالي الكمية</th><th> الكميةالمتبقية</th><th>إجمالي سعر البيع</th><th>الحالة</th>${cm?'<th>الإجراءات</th>':''}</tr></thead>
@@ -1772,10 +1836,10 @@ async render(c){
 
 // تطبيق البحث النصي + الفلاتر محلياً ثم رسم الجدول
 async applyFilters(){
-  const q = (document.getElementById('spSearch')?.value||'').trim().toLowerCase();
-  const filterUser = (document.getElementById('spFilterUser')?.value||'').trim();
-  const filterKind = (document.getElementById('spFilterKind')?.value||'').trim();
-
+ const q = (document.getElementById('spSearch')?.value||'').trim().toLowerCase();
+const rf = parseRepFilter(document.getElementById('spFilterUser')?.value);
+const filterUser = rf.user, filterKind = rf.kind;
+const filterState = (document.getElementById('spFilterState')?.value||'').trim();
   let list = (this.list||[]).slice();
 
   // بحث نصي: رقم الشحنة / اسم المندوب / التاريخ / الهاتف / الحالة
@@ -1788,7 +1852,9 @@ async applyFilters(){
       String(x.state||'').toLowerCase().includes(q)
     );
   }
-
+if(filterState){
+  list = list.filter(x => String(x.state||'') === filterState);
+}
   // فلتر المندوب
   if(filterUser){
     list = list.filter(x => String(x.userName||'') === filterUser);
@@ -1857,12 +1923,12 @@ if(cm){
     document.getElementById('spDetail').innerHTML=`
       <div class="detail-card">
         <h3 style="color:var(--primary-dark);margin:0 0 14px;">شحنة جديدة</h3>
-        <div class="form-grid" style="grid-template-columns:1fr;">
-          <select id="spRep">
-            <option value="">— اختر المندوب —</option>
-            ${this.reps.map(u=>`<option value="${esc(u.id)}">${esc(u.name)} — ${repTypeLabel(u.repType)} — ${esc(u.phone)}</option>`).join('')}
-          </select>
-        </div>
+      <div class="form-grid" style="grid-template-columns:minmax(0,1fr);max-width:100%;overflow:hidden;">
+  <select id="spRep" style="min-width:0;width:100%;max-width:100%;text-overflow:ellipsis;">
+    <option value="">— اختر المندوب —</option>
+    ${this.reps.map(u=>`<option value="${esc(u.id)}">${esc(u.name)} — ${repTypeLabel(u.repType)} — ${esc(u.phone)}</option>`).join('')}
+  </select>
+</div>
         <datalist id="spProdList">
           ${this.products.map(p=>`<option value="${esc(p.name)}">${esc(p.company)} (متاح: ${p.quantity})</option>`).join('')}
         </datalist>
@@ -1872,7 +1938,7 @@ if(cm){
         </div>
         <div class="table-card"><div class="table-wrapper">
           <table class="data-table" style="min-width:auto;">
-            <thead><tr><th>المنتج</th><th>سعر البيع</th><th>الكمية</th><th>الإجمالي</th><th></th></tr></thead>
+            <thead><tr><th>أســـم المـنتج</th><th>سعر البيع</th><th>الكمية</th><th>الإجمالي</th><th></th></tr></thead>
             <tbody id="spItems"></tbody>
           </table>
         </div></div>
@@ -2067,20 +2133,18 @@ const InvoicesView = {
 
   c.innerHTML = `
     ${headerTpl('الفواتير',ICONS.invoices,`<button class="btn btn-primary" onclick="InvoicesView.createNew()">${ICONS.plus}<span class="btn-label">فاتورة جديدة</span></button>`)}
-    <div class="form-grid" style="margin-bottom:5px;grid-template-columns:${isRep?'1fr':'2fr 1fr 1fr'};">
-      <input id="invSearch" placeholder="بحث برقم الفاتورة أو الزبون أو الهاتف..." oninput="InvoicesView.applyFilters()">
-      ${isRep?'':`
-        <select id="invFilterUser" onchange="InvoicesView.applyFilters()">
-          <option value="">كل المندوبين</option>
-          ${reps.map(u=>`<option value="${esc(u.name)}">${esc(u.name)} — ${repTypeLabel(u.repType)}</option>`).join('')}
-        </select>
-        <select id="invFilterKind" onchange="InvoicesView.applyFilters()">
-          <option value="">كل الأنواع</option>
-          <option value="مندوب محل">مندوب محل</option>
-          <option value="مندوب شاحنة">مندوب شاحنة</option>
-        </select>
-      `}
-    </div>
+<div class="form-grid" style="margin-bottom:5px;grid-template-columns:${isRep?'1fr':'1.6fr 1fr 1fr'};">
+  <input id="invSearch" placeholder="بحث برقم الفاتورة أو الزبون أو الهاتف..." oninput="InvoicesView.applyFilters()">
+  ${isRep?'':`
+    <input id="invShipSearch" placeholder="رقم الشحنة..." oninput="InvoicesView.applyFilters()">
+    <select id="invFilterUser" onchange="InvoicesView.applyFilters()">
+      <option value="">الكل</option>
+      <option value="kind:مندوب محل">مندوب محل</option>
+      <option value="kind:مندوب شاحنة">مندوب شاحنة</option>
+      ${reps.map(u=>`<option value="user:${esc(u.name)}">${esc(u.name)}</option>`).join('')}
+    </select>
+  `}
+</div>
     <div class="table-card"><div class="table-wrapper">
       <table class="data-table">
         <thead><tr><th>رقم الفاتورة</th><th>التاريخ</th><th>المستخدم</th><th>الزبون</th><th>الإجمالي</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
@@ -2114,8 +2178,9 @@ async load(){
 // تطبيق البحث النصي + الفلاتر محلياً ثم رسم الجدول
 async applyFilters(){
   const q = (document.getElementById('invSearch')?.value||'').trim().toLowerCase();
-  const filterUser = (document.getElementById('invFilterUser')?.value||'').trim();
-  const filterKind = (document.getElementById('invFilterKind')?.value||'').trim();
+const rf = parseRepFilter(document.getElementById('invFilterUser')?.value);
+const filterUser = rf.user, filterKind = rf.kind;
+const shipQ = (document.getElementById('invShipSearch')?.value||'').trim().toLowerCase();
 
   let list = (this.allRows || this.invoices || []).slice();
 
@@ -2130,7 +2195,9 @@ async applyFilters(){
       String(x.date||'').toLowerCase().includes(q)
     );
   }
-
+if(shipQ){
+  list = list.filter(x => String(x.salePoint||'').toLowerCase().includes(shipQ));
+}
   // فلتر المندوب
   if(filterUser){
     list = list.filter(x => String(x.userName||'') === filterUser);
@@ -2773,6 +2840,7 @@ const ReportsView = {
         <input type="date" id="rFrom" value="${this.pFrom}" onchange="ReportsView.apply()" title="من تاريخ">
         <input type="date" id="rTo" value="${this.pTo}" onchange="ReportsView.apply()" title="إلى تاريخ">
         <button class="btn btn-cancel btn-sm" onclick="ReportsView.clear()" title="مسح الفلتر">✕</button>
+        <button class="btn btn-print btn-sm" onclick="ReportsView.print()" title="طباعة">${ICONS.print}</button>
       </div>
     </div>`;
   },
@@ -2794,6 +2862,93 @@ const ReportsView = {
     this.show(this.cur);
   },
   clear(){ this.pFrom=''; this.pTo=''; this.show(this.cur); },
+
+    async print(){
+    const src = document.getElementById('reportContent');
+    const h3 = src && src.querySelector('.rep-head h3');
+    if(!src || !h3){ alert('لا يوجد تقرير'); return; }
+
+    const title = h3.textContent.trim();
+    const en = (typeof I18N!=='undefined' && I18N.lang==='en');
+    const L = en
+      ? {date:'Date',period:'Period',from:'From',to:'To',stamp:'Company Stamp',totals:'Totals'}
+      : {date:'التاريخ',period:'الفترة',from:'من',to:'إلى',stamp:'ختم الشركة',totals:'الإجماليات'};
+
+    // الجداول والعناوين الفرعية فقط (بدون صف الفلتر والمجاميع الثابتة)
+    const body = src.cloneNode(true);
+    body.querySelectorAll('.rep-head,.totals').forEach(x=>x.remove());
+
+    // المجاميع من الشريط الثابت
+    const totals = [...src.querySelectorAll('.totals .total-item')].map(t=>{
+      const s = t.querySelectorAll('span');
+      return `<div class="t"><div class="tl">${s[0]?s[0].textContent:''}</div><div class="tv">${s[1]?s[1].textContent:''}</div></div>`;
+    }).join('');
+
+    const cn = splitCompanyName(App.companyData.name);
+    const logo = App.companyData.logo || '';
+    const stamp = App.companyData.stamp || '';
+    const period = (this.pFrom||this.pTo)
+      ? `<div>${L.period}: <b>${this.pFrom? L.from+' '+this.pFrom : ''} ${this.pTo? L.to+' '+this.pTo : ''}</b></div>` : '';
+    const dir = en ? 'ltr' : 'rtl';
+
+    const html = `<!DOCTYPE html><html dir="${dir}" lang="${en?'en':'ar'}"><head><meta charset="UTF-8">
+<title>${esc(title)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+@page{size:A4;margin:12mm;}
+*{box-sizing:border-box;font-family:'Cairo',Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+body{margin:0;color:#111;font-size:13px;direction:${dir};}
+.top{display:flex;align-items:center;gap:14px;border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:10px;}
+.top img{width:70px;height:70px;object-fit:contain;}
+.cn-ar{font-size:20px;font-weight:800;line-height:1.3;}
+.cn-en{font-size:15px;font-weight:600;color:#444;direction:ltr;}
+.rtitle{text-align:center;font-size:20px;font-weight:800;margin:8px 0 4px;}
+.meta{display:flex;justify-content:center;gap:24px;color:#444;margin-bottom:12px;flex-wrap:wrap;}
+h4{margin:12px 0 6px;font-size:14px;}
+table{width:100%;border-collapse:collapse;margin-bottom:8px;min-width:0 !important;}
+th,td{border:1px solid #bbb;padding:5px 7px;text-align:${en?'left':'right'};font-size:12px;}
+th{background:#eee !important;font-weight:700;}
+thead{display:table-header-group;} tr{page-break-inside:avoid;}
+.totals-box{margin-top:14px;page-break-inside:avoid;}
+.totals-title{font-weight:800;margin-bottom:6px;}
+.totals-row{display:flex;gap:8px;flex-wrap:wrap;}
+.t{flex:1 1 0;min-width:110px;border:2px solid #111;border-radius:8px;padding:6px 10px;text-align:center;background:#f4f4f4 !important;}
+.tl{font-size:11px;color:#444;} .tv{font-size:16px;font-weight:800;}
+.stamp{margin-top:26px;display:flex;justify-content:${en?'flex-end':'flex-start'};page-break-inside:avoid;}
+.stamp div{text-align:center;width:160px;}
+.stamp img{width:110px;height:110px;object-fit:contain;}
+.stamp .lb{border-top:1px solid #111;padding-top:4px;font-size:12px;color:#444;margin-top:4px;}
+</style></head><body>
+<div class="top">
+  ${logo?`<img src="${logo}">`:''}
+  <div><div class="cn-ar">${esc(cn.ar)}</div>${cn.en?`<div class="cn-en">${esc(cn.en)}</div>`:''}</div>
+</div>
+<div class="rtitle">${esc(title)}</div>
+<div class="meta"><div>${L.date}: <b>${todayStr()}</b></div>${period}</div>
+${body.innerHTML}
+${totals?`<div class="totals-box"><div class="totals-title">${L.totals}</div><div class="totals-row">${totals}</div></div>`:''}
+<div class="stamp"><div>${stamp?`<img src="${stamp}">`:'<div style="height:80px"></div>'}<div class="lb">${L.stamp}</div></div></div>
+</body></html>`;
+
+    // طباعة عبر إطار مخفي (بدون نافذة منبثقة)
+    const old = document.getElementById('repPrintFrame');
+    if(old) old.remove();
+    const f = document.createElement('iframe');
+    f.id = 'repPrintFrame';
+    f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+    document.body.appendChild(f);
+    const d = f.contentWindow.document;
+    d.open(); d.write(html); d.close();
+
+    // انتظر تحميل الصور ثم اطبع
+    const imgs = [...d.images];
+    await Promise.all(imgs.map(im=>im.complete ? 1 : new Promise(r=>{im.onload=im.onerror=r;})));
+    setTimeout(()=>{
+      f.contentWindow.focus();
+      f.contentWindow.print();
+      setTimeout(()=>f.remove(),60000);
+    },400);
+  },
 
   async show(type,btn){
     this.cur = type;
