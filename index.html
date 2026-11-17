@@ -2297,6 +2297,19 @@ buildPrintable(s){
   const t = this.totalsOf(s);
   return `
   <div class="inv-print" id="printableSale" data-no="${esc(s.number)}" dir="rtl" style="padding:16px;">
+
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+                border:1px solid #ccc;border-radius:10px;padding:10px 14px;margin-bottom:14px;line-height:1.9;">
+      <div>
+        <div><span style="color:#555;">رقم الشحنة:</span> <b>${esc(s.number)}</b></div>
+        <div><span style="color:#555;">التاريخ:</span> <b>${esc(s.date)}</b></div>
+      </div>
+      <div style="text-align:left;">
+        <div><span style="color:#555;">المندوب:</span> <b>${esc(s.userName)||'—'}</b></div>
+        ${s.userPhone?`<div><span style="color:#555;">الهاتف:</span> <b dir="ltr">${esc(s.userPhone)}</b></div>`:''}
+      </div>
+    </div>
+
     <table class="data-table ip-table" style="min-width:auto;width:100%;">
       <thead><tr>
         <th>اسم المنتج</th><th>العدد الإجمالي (المعطى)</th><th>السعر</th>
