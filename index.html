@@ -107,7 +107,7 @@ button{font-family:inherit;cursor:pointer;}
 .icon-card p{font-size:.95rem;font-weight:700;}
 
 /* ===== VIEW ===== */
-.view-container{padding:22px;max-width:1300px;margin:0 auto;}
+.view-container{padding:22px;max-width:1300px;margin:0 auto;margin-top:12px;}
 .view-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
   margin-bottom:2px;background:#fff;padding:16px 20px;border-radius:var(--radius);
   box-shadow:var(--shadow-sm);border:1px solid var(--border);}
@@ -748,6 +748,15 @@ html[dir=ltr] .icon-card::before{transform-origin:left;}
 .ip-sign-box{width:230px;}
 .ip-sign-space{height:120px;}
 #printableSale .ip-sign{justify-content:flex-start;}
+.totals-4c .total-item span.qp-reason{
+  white-space:normal;
+  overflow:visible;
+  line-height:1.3;
+  font-size:.9rem;
+}
+@media (max-width:600px){
+  .totals-4c .total-item span.qp-reason{font-size:.72rem;}
+}
 
 
 /* ===== زر تثبيت التطبيق (أسفل النافذة) ===== */
@@ -888,36 +897,37 @@ const Dialog = {
   confirm(msg){ return new Promise(res=>{ this.queue.push({type:'confirm',msg:String(msg??''),res}); this._next(); }); },
 
   askReason(msg){
-  return new Promise(res=>{
-    const opts=['Full Stock','Stock Damage','Stock Not Enough','Delivery Problem'];
-    const ov=document.createElement('div');
-    ov.className='dlg-overlay';
-    ov.innerHTML=`
-      <div class="dlg-box" role="dialog" aria-modal="true">
-        <div class="dlg-icon ask">${this.ICON.ask}</div>
-        <div class="dlg-msg"></div>
-        <input id="dlgReason" list="dlgReasonList" placeholder="سبب الحذف" autocomplete="off"
-          style="width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-family:inherit;margin-bottom:16px;">
-        <datalist id="dlgReasonList">${opts.map(o=>`<option value="${o}"></option>`).join('')}</datalist>
-        <div class="dlg-actions">
-          <button class="btn btn-delete dlg-ok">تأكيد</button>
-          <button class="btn btn-cancel dlg-cancel">إلغاء</button>
-        </div>
-      </div>`;
-    ov.querySelector('.dlg-msg').textContent=msg;
-    document.body.appendChild(ov);
-    const inp=ov.querySelector('#dlgReason');
-    const close=v=>{ov.remove();res(v);};
-    ov.querySelector('.dlg-ok').onclick=()=>{
-      const v=inp.value.trim();
-      if(!v){inp.style.borderColor='var(--danger)';inp.focus();return;}
-      close(v);
-    };
-    ov.querySelector('.dlg-cancel').onclick=()=>close(null);
-    setTimeout(()=>inp.focus(),30);
-  });
-},
-
+    return new Promise(res=>{
+      const opts=['البضاعة متوفرة','خراب البضاعة','البضاعة ناقصة','مشكلة التوصيل','عدم الدفع'];
+      const ov=document.createElement('div');
+      ov.className='dlg-overlay';
+      ov.innerHTML=`
+        <div class="dlg-box" role="dialog" aria-modal="true">
+          <div class="dlg-icon ask">${this.ICON.ask}</div>
+          <div class="dlg-msg"></div>
+          <select id="dlgReason"
+            style="width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-family:inherit;margin-bottom:16px;background:#fff;">
+            <option value="">اختر سبب الحذف</option>
+            ${opts.map(o=>`<option value="${o}">${o}</option>`).join('')}
+          </select>
+          <div class="dlg-actions">
+            <button class="btn btn-delete dlg-ok">تأكيد</button>
+            <button class="btn btn-cancel dlg-cancel">إلغاء</button>
+          </div>
+        </div>`;
+      ov.querySelector('.dlg-msg').textContent=msg;
+      document.body.appendChild(ov);
+      const sel=ov.querySelector('#dlgReason');
+      const close=v=>{ov.remove();res(v);};
+      ov.querySelector('.dlg-ok').onclick=()=>{
+        const v=sel.value.trim();
+        if(!v){sel.style.borderColor='var(--danger)';sel.focus();return;}
+        close(v);
+      };
+      ov.querySelector('.dlg-cancel').onclick=()=>close(null);
+      setTimeout(()=>sel.focus(),30);
+    });
+  },
   _next(){
     if(this.busy || !this.queue.length) return;
     this.busy = true;
@@ -969,7 +979,7 @@ const TOKEN = '12456a4f5dsa4f5@544*&*iasfjlf988ew4sfjk#';   // نفس TOKEN في
 const API_CFG = {
   users:    {url:'https://script.google.com/macros/s/AKfycbwZHfRRcTef8XxQojGWRcCqLl9IVCNOXR25DhWff5Gl-Iv0gbJBRXZp_mxMRwcHpAJJ/exec',     token:TOKEN},
   products: {url:'https://script.google.com/macros/s/AKfycbwYBi-kI_7heR2GNoxCUKs9N-HWyQJUgkgBE04vGSWpEoJimgi-P1kNd9w5Awi9lpDM/exec',  token:TOKEN},
-  invoices: {url:'https://script.google.com/macros/s/AKfycbw1EozESCK0r8jVBnZjrI5rztlywNVJvasnrHB1zE2GXtZh-Evu5G06l5o90tw4w0O0/exec',  token:TOKEN},
+  invoices: {url:'https://script.google.com/macros/s/AKfycbwrUsczTrQR_CTcd46jFwSxNEWbkn-Z1NvEwS9eGmPIlnp-mYhsKUD93wr2lO941dw9/exec',  token:TOKEN},
   purchases:{url:'https://script.google.com/macros/s/AKfycbxbinzO4quaDdNukTHnow-5ufi6lPs3gpyy9SzOCvgo7BhvM765iDqFBe2gQyKEkHp8/exec', token:TOKEN},
   salepoints:{url:'https://script.google.com/macros/s/AKfycbzv1ZU2stpywgmtnYqKglywjrhbPmnIVyBDp6ZMg1u91llQ8fvvdY9_1_NCvgWePmDW/exec', token:TOKEN},
   company:  {url:'https://script.google.com/macros/s/AKfycbwveXc-agvcCDbz7wci_ncaj5FmYishXUgvotP-0grSlRW3tkilZsBjoGu2sdrrOPbUjg/exec',   token:TOKEN}
@@ -1344,11 +1354,13 @@ const InvoiceQuickPay = {
     if(!inv || !inv.id) return '';
     const id = inv.id, total = Number(inv.total)||0;
 
-    // فاتورة ملغاة: عرض فقط
+   // فاتورة ملغاة: عرض فقط
     if(inv.state==='ملغي'){
       return `
       <div class="total-item"><span>المدفوع</span><span>${inv.paid.toFixed(2)}</span></div>
-      <div class="total-item"><span>الباقي</span><span>${inv.remaining.toFixed(2)}</span></div>`;
+      <div class="total-item"><span>الباقي</span><span>${inv.remaining.toFixed(2)}</span></div>
+      <div class="total-item"><span>الحالة</span><span style="color:var(--danger);">ملغي</span></div>
+      <div class="total-item"><span>سبب الإلغاء</span><span class="qp-reason" style="color:var(--danger);">${esc(inv.resDel)||'—'}</span></div>`;
     }
 
     return `
@@ -1665,7 +1677,7 @@ const ProductsView = {
     this.editingId=null; this.newRowOpen=false; this.products=[]; this.loading=true;
     c.innerHTML = `
       ${headerTpl('المنتجات',ICONS.products,this.priv()?``:'')}
-     <div style="display:flex;gap:8px;margin-bottom:5px;background:#fff;padding:14px;border:1px solid var(--border);border-radius:var(--radius);">
+     <div style="display:flex;gap:8px;margin-bottom:5px;background:#fff;padding:14px;border:5px;border-radius:20px;">
   <input id="prodFilterText" placeholder="اسم المنتج أو الشركة..." oninput="ProductsView.renderRows()" style="flex:1;min-width:0;">
   <button class="btn btn-primary" onclick="ProductsView.openNewRow()" style="white-space:nowrap;">${ICONS.plus}<span class="btn-label">إضافة جديد</span></button>
 </div>
@@ -2777,7 +2789,6 @@ async createNew(presetRep, presetShipId){
                 </table>
             </div>
         </div>
-
         <div class="totals totals-3col">
 
             <div class="total-item">
@@ -3720,6 +3731,13 @@ const I18N = {
     'سعر المصروف':'Issued Amount','سعر الوحدة':'Unit Price','الشحنات':'Shipments',
     'فاتورة رقم:':'Invoice No.:','لا توجد منتجات':'No products',
     'إرسال PDF':'Send PDF','لا توجد شحنة':'No shipment',
+    'البضاعة متوفرة':'The goods are available',
+    'خراب البضاعة':'Damage to goods',
+    'البضاعة ناقصة':'The shipment is incomplete',
+    'مشكلة التوصيل':'Delivery issue',
+    'عدم الدفع':'Non-payment',
+    'اختر سبب الحذف':'Select deletion reason',
+    'سبب الإلغاء:':'Cancellation reason:',
     'ملغي':'Cancelled','سبب الحذف':'Deletion reason','حذف نهائي':'Delete permanently',
 'يجب إلغاء الفاتورة أولاً':'Cancel the invoice first','الفاتورة ملغاة مسبقاً':'Invoice already cancelled',
 'تم إلغاء الفاتورة وإرجاع الكميات إلى الشحنات':'Invoice cancelled and quantities returned to shipments',
