@@ -790,6 +790,18 @@ html[dir=ltr] .icon-card::before{transform-origin:left;}
 .view-header:has(#repTitle) .btn-print{padding:5px 9px;font-size:.75rem;gap:4px;}
 .view-header:has(#repTitle) .btn-print svg{width:13px;height:13px;}
 .view-header:has(#repTitle) .btn-back{padding:5px 9px;font-size:.75rem;}
+.rep-search-row select{
+  width:100%;padding:8px 10px;border:2px solid var(--border);border-radius:8px;
+  font-family:inherit;font-size:.85rem;background:#fff;
+}
+.rep-search-row select:focus{outline:none;border-color:var(--primary);}
+.rep-kind-row{display:flex;align-items:center;gap:6px;}
+.rep-kind-row select{flex:1 1 auto;min-width:0;width:auto;}
+.rep-kind-row .btn{flex:0 0 auto;}
+.rep-kind-row{display:flex;align-items:center;gap:6px;}
+.rep-kind-row select,
+.rep-kind-row input[type=search]{flex:1 1 auto;min-width:0;width:auto;}
+.rep-kind-row .btn{flex:0 0 auto;}
 
 
 /* ===== زر تثبيت التطبيق (أسفل النافذة) ===== */
@@ -3412,18 +3424,18 @@ App.views.invoices = InvoicesView;
    ReportsView
    ========================================================= */
 const ReportsView = {
-  pFrom:'', pTo:'', pRep:'', pSearch:'', prodData:null, cur:'users', reps:[], kindByName:{},
+  pFrom:'', pTo:'', pRep:'', pSearch:'', pKind:'', prodData:null, cur:'users', reps:[], kindByName:{},
 
   async render(c){
-    this.pRep = '';
+    this.resetFilters();
     c.innerHTML = `
             ${headerTpl('التقارير <span id="repTitle" class="rep-title"></span>',ICONS.reports,
         `<button class="btn btn-print btn-sm" onclick="ReportsView.print()" title="طباعة">${ICONS.print}<span class="btn-label"></span></button>`)}
       <div class="reports-tabs">
-        <button data-tab="users" onclick="ReportsView.show('users',this)">المستخدمين</button>
-        <button data-tab="products" onclick="ReportsView.show('products',this)">المنتجات</button>
-        <button data-tab="invoices" onclick="ReportsView.show('invoices',this)">الفواتير</button>
-        <button data-tab="purchases" onclick="ReportsView.show('purchases',this)">المشتريات</button>
+                <button data-tab="users" onclick="ReportsView.switchTab('users',this)">المستخدمين</button>
+        <button data-tab="products" onclick="ReportsView.switchTab('products',this)">المنتجات</button>
+        <button data-tab="invoices" onclick="ReportsView.switchTab('invoices',this)">الفواتير</button>
+        <button data-tab="purchases" onclick="ReportsView.switchTab('purchases',this)">المشتريات</button>
       </div>
       <div id="reportContent" class="report-content" style="margin-top:5px;"></div>`;
 
@@ -3440,22 +3452,27 @@ const ReportsView = {
   },
 
   /* صف العنوان + الفلتر (نفس الصف في كل التقارير) */
-   head(title){
+head(title){
     const t = document.getElementById('repTitle');
     if(t) t.textContent = '— ' + title;
+    const isPur  = this.cur==='purchases';
+    const isProd = this.cur==='products';
+    const inRow  = isPur || isProd;   // الأزرار تنتقل بجانب حقل/قائمة الفلترة
+    const btns = `
+        <button class="btn btn-primary btn-sm" onclick="ReportsView.apply()" title="بحث">${ICONS.search}</button>
+        <button class="btn btn-cancel btn-sm" onclick="ReportsView.clear()" title="مسح الفلتر">✕</button>`;
     return `<div class="rep-head">
       <h3 style="display:none">${title}</h3>
       <div class="rep-filter">
         ${this.repSelect()}
         <input type="date" id="rFrom" value="${this.pFrom}" title="من تاريخ">
         <input type="date" id="rTo" value="${this.pTo}" title="إلى تاريخ">
-        <button class="btn btn-primary btn-sm" onclick="ReportsView.apply()" title="بحث">${ICONS.search}</button>
-        <button class="btn btn-cancel btn-sm" onclick="ReportsView.clear()" title="مسح الفلتر">✕</button>
+        ${inRow ? '' : btns}
       </div>
     </div>
-    ${this.cur==='products' ? `<div class="rep-search-row">${this.prodSearchBox()}</div>` : ''}`;
+    ${isProd ? `<div class="rep-search-row rep-kind-row">${this.prodSearchBox()}${btns}</div>` : ''}
+    ${isPur  ? `<div class="rep-search-row rep-kind-row">${this.purKindSelect()}${btns}</div>` : ''}`;
   },
-
   /* قائمة النوع والمندوبين (لا تظهر للمندوب نفسه ولا في تقرير المنتجات) */
   repSelect(){
     if(Auth.isRep()) return '';
@@ -3468,9 +3485,18 @@ const ReportsView = {
     </select>`;
   },
 
-    prodSearchBox(){
-    return `<input type="search" id="rProdSearch" placeholder="اسم المنتج..." value="${esc(this.pSearch)}"
-      oninput="ReportsView.drawProducts()" title="بحث">`;
+    purKindSelect(){
+    const o = (v,t)=>`<option value="${v}" ${this.pKind===v?'selected':''}>${t}</option>`;
+    return `<select id="rPurKind" title="نوع العملية">
+      ${o('','الكل')}
+      ${o('PUR','الشراء')}
+      ${o('Dist','الشحنات')}
+    </select>`;
+  },
+
+   prodSearchBox(){
+    return `<input type="search" id="rProdSearch" placeholder="اسم المنتج أو الشركة..." value="${esc(this.pSearch)}"
+      onkeydown="if(event.key==='Enter'){ReportsView.apply();}" title="بحث">`;
   },
 
      drawProducts(){
@@ -3482,7 +3508,9 @@ const ReportsView = {
     const safe = n=>String(n).replace(/,/g,'،');
 
     const {boughtMap,soldMap,held} = this.prodData;
-    let l = this.prodData.l.filter(p=>!q || String(p.name||'').toLowerCase().includes(q));
+        let l = this.prodData.l.filter(p=>!q ||
+      String(p.name||'').toLowerCase().includes(q) ||
+      String(p.company||'').toLowerCase().includes(q));
     const priv = ProductsView.priv();
 
     /* ===== وضع مندوب: منتجات شحناته ===== */
@@ -3563,16 +3591,29 @@ const ReportsView = {
     d = String(d||'');
     return (!this.pFrom || d>=this.pFrom) && (!this.pTo || d<=this.pTo);
   },
+
  apply(){
     this.pFrom = document.getElementById('rFrom').value;
     this.pTo = document.getElementById('rTo').value;
     const r = document.getElementById('rRep');
     if(r) this.pRep = r.value;
+    const k = document.getElementById('rPurKind');
+    if(k) this.pKind = k.value;
+    const s = document.getElementById('rProdSearch');
+    if(s) this.pSearch = s.value;
     this.show(this.cur);
   },
+
   clear(){
-    this.pFrom=''; this.pTo=''; this.pRep=''; this.pSearch='';
+    this.pFrom=''; this.pTo=''; this.pRep=''; this.pSearch=''; this.pKind='';
     this.show(this.cur);
+  },
+  resetFilters(){
+    this.pFrom=''; this.pTo=''; this.pRep=''; this.pSearch=''; this.pKind='';
+  },
+    switchTab(type,btn){
+    this.resetFilters();
+    return this.show(type,btn);
   },
 
     async print(){
@@ -3582,10 +3623,9 @@ const ReportsView = {
 
     const title = h3.textContent.trim();
     const en = (typeof I18N!=='undefined' && I18N.lang==='en');
-    const L = en
-      ? {date:'Date',period:'Period',from:'From',to:'To',stamp:'Company Stamp',totals:'Totals'}
-      : {date:'التاريخ',period:'الفترة',from:'من',to:'إلى',stamp:'ختم الشركة',totals:'الإجماليات'};
-
+        const L = en
+      ? {date:'Date',period:'Period',from:'From',to:'To',stamp:'Company Stamp',totals:'Totals',rep:'Rep / Type',kind:'Operation type',search:'Search'}
+      : {date:'التاريخ',period:'الفترة',from:'من',to:'إلى',stamp:'ختم الشركة',totals:'الإجماليات',rep:'المندوب / النوع',kind:'نوع العملية',search:'بحث'};
     // الجداول والعناوين الفرعية فقط (بدون صف الفلتر والمجاميع الثابتة)
     const body = src.cloneNode(true);
         body.querySelectorAll('.rep-head,.rep-search-row,.totals').forEach(x=>x.remove());
@@ -3599,8 +3639,19 @@ const ReportsView = {
     const cn = splitCompanyName(App.companyData.name);
     const logo = App.companyData.logo || '';
     const stamp = App.companyData.stamp || '';
-    const period = (this.pFrom||this.pTo)
-      ? `<div>${L.period}: <b>${this.pFrom? L.from+' '+this.pFrom : ''} ${this.pTo? L.to+' '+this.pTo : ''}</b></div>` : '';
+    const tv = s => (en && typeof I18N!=='undefined') ? I18N.tr(s) : s;
+    const all = tv('الكل');
+    const rf = parseRepFilter(this.pRep);
+    const chips = [];
+    if(!Auth.isRep()) chips.push([L.rep, (rf.user || rf.kind) ? tv(rf.user || rf.kind) : all]);
+    chips.push([L.period, (this.pFrom||this.pTo)
+      ? `${this.pFrom ? L.from+' '+this.pFrom : ''} ${this.pTo ? L.to+' '+this.pTo : ''}`.trim()
+      : all]);
+    if(this.cur==='purchases')
+      chips.push([L.kind, tv(this.pKind==='PUR' ? 'الشراء' : this.pKind==='Dist' ? 'الشحنات' : 'الكل')]);
+    if(this.cur==='products')
+      chips.push([L.search, (this.pSearch||'').trim() || all]);
+    const filtersHtml = chips.map(([k,v])=>`<div>${k}: <b>${esc(v)}</b></div>`).join('');
     const dir = en ? 'ltr' : 'rtl';
 
     const html = `<!DOCTYPE html><html dir="${dir}" lang="${en?'en':'ar'}"><head><meta charset="UTF-8">
@@ -3637,7 +3688,7 @@ thead{display:table-header-group;} tr{page-break-inside:avoid;}
   <div><div class="cn-ar">${esc(cn.ar)}</div>${cn.en?`<div class="cn-en">${esc(cn.en)}</div>`:''}</div>
 </div>
 <div class="rtitle">${esc(title)}</div>
-<div class="meta"><div>${L.date}: <b>${todayStr()}</b></div>${period}</div>
+<div class="meta"><div>${L.date}: <b>${todayStr()}</b></div>${filtersHtml}</div>
 ${body.innerHTML}
 ${totals?`<div class="totals-box"><div class="totals-title">${L.totals}</div><div class="totals-row">${totals}</div></div>`:''}
 <div class="stamp"><div>${stamp?`<img src="${stamp}">`:'<div style="height:80px"></div>'}<div class="lb">${L.stamp}</div></div></div>
@@ -3775,7 +3826,9 @@ ${totals?`<div class="totals-box"><div class="totals-title">${L.totals}</div><di
         match:rep?{SeyoufPurchUser:Auth.currentUser.name}:undefined,
         range:(from||to)?{col:'SeyoufPurchDate',from,to}:undefined
       });
-      const l = rows.map(M.purch.from).filter(x=>this.repOk(x.userName));
+            const l = rows.map(M.purch.from)
+        .filter(x=>this.repOk(x.userName))
+        .filter(x=>!this.pKind || String(x.number||'').toLowerCase().startsWith(this.pKind.toLowerCase()));
       const sumQty=l.reduce((s,x)=>s+x.qty,0),sumTotal=l.reduce((s,x)=>s+x.total,0);
       const byCompany = {};
       l.forEach(x=>{const k=x.companyName||'—';byCompany[k]=byCompany[k]||{qty:0,total:0};byCompany[k].qty+=x.qty;byCompany[k].total+=x.total;});
@@ -3787,7 +3840,7 @@ ${totals?`<div class="totals-box"><div class="totals-title">${L.totals}</div><di
         </table></div>
         <h4 style="margin:10px 0 8px;color:var(--primary-dark);">تفاصيل المشتريات</h4>
         <div class="table-wrapper"><table class="data-table">
-          <thead><tr><th>رقم الشراء</th><th>التاريخ</th><th>الشركة</th><th>المستخدم</th><th>المنتج</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr></thead>
+          <thead><tr><th>رقم الشراء/الشحنة</th><th>التاريخ</th><th>الشركة</th><th>المستخدم</th><th>المنتج</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr></thead>
           <tbody>${l.map(x=>`<tr><td><b>${esc(x.number)}</b></td><td>${esc(x.date)}</td><td>${esc(x.companyName)||'—'}</td><td>${esc(x.userName)||'—'}</td><td>${esc(x.productName)||'—'}</td><td>${x.qty}</td><td>${x.unitPrice.toFixed(2)}</td><td><b>${x.total.toFixed(2)}</b></td></tr>`).join('')||'<tr class="empty-row"><td colspan="8">لا يوجد</td></tr>'}</tbody>
         </table></div>` + this.tot([
           ['عدد العمليات',l.length],
@@ -3886,14 +3939,14 @@ const I18N = {
     'مشكلة التوصيل':'Delivery issue',
     'عدم الدفع':'Non-payment',
     'المعطى':'Given','بحث':'Search',
-'إجمالي المعطى':'Total Given',
+'إجمالي المعطى':'Total Given','رقم الشراء/الشحنة':'Purchase/Shipment No.',
 'قيمة المتبقي (بيع)':'Remaining value (sale)',
 'قيمة المتبقي (شراء)':'Remaining value (purchase)',
     'اختر سبب الحذف':'Select deletion reason',
     'عدد الشحنات':'Shipments count','إجمالي مبلغ الشحنات':'Total shipments amount',
     'عدد الفواتير':'Invoices count','إجمالي مبلغ البيع':'Total sales amount',
     'سبب الإلغاء:':'Cancellation reason:','المندوب':'Rep','اسم المنتج...':'Product name...',
-    'ملغي':'Cancelled','سبب الحذف':'Deletion reason','حذف نهائي':'Delete permanently',
+    'ملغي':'Cancelled','سبب الحذف':'Deletion reason','حذف نهائي':'Delete permanently','الشراء':'Purchase',
 'يجب إلغاء الفاتورة أولاً':'Cancel the invoice first','الفاتورة ملغاة مسبقاً':'Invoice already cancelled',
 'تم إلغاء الفاتورة وإرجاع الكميات إلى الشحنات':'Invoice cancelled and quantities returned to shipments',
 'حذف الفاتورة نهائياً من الشيت؟ لا يمكن التراجع':'Permanently delete invoice from the sheet? This cannot be undone',
